@@ -23,6 +23,9 @@ app.get("/", (req, res) => {
   res.send("Root Route Placeholder!");
 });
 
+// Error Handling
+app.use(errorHandler);
+
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
