@@ -88,3 +88,42 @@ export const registerUser = async (req, res, next) => {
     if (client) client.release();
   }
 };
+
+export const loginUser = async (req, res, next) => {
+  let client;
+  try {
+    const { email, password } = req.body;
+    client = await pool.connect();
+
+    const result = await client.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "User Not Found!" });
+    }
+
+    if (await bcrypt.compare(password, result.rows[0].password)) {
+      const token = jwt.sign(
+        { id: result.rows[0].id, role: result.rows[0].role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      res.status(200).json({
+        token,
+        user: {
+          id: result.rows[0].id,
+          name: result.rows[0].name,
+          role: result.rows[0].role,
+        },
+      });
+    } else {
+      return res.status(401).json({ error: "Invalid Credentials!" });
+    }
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
