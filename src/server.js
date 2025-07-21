@@ -18,6 +18,11 @@ const PORT = process.env.PORT;
   }
 })();
 
+// Routes
+app.get("/", (req, res) => {
+  res.send("Root Route Placeholder!");
+});
+
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
