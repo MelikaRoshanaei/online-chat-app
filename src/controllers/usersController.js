@@ -127,3 +127,33 @@ export const loginUser = async (req, res, next) => {
     if (client) client.release();
   }
 };
+
+export const updateUser = async (req, res, next) => {
+  let client;
+  try {
+    const { id } = req.params;
+    const { queryFields, values } = req.validatedData;
+    client = await pool.connect();
+
+    const result = await client.query(
+      `UPDATE users SET ${queryFields.join(", ")} WHERE id = $${
+        values.length + 1
+      } RETURNING *`,
+      [...values, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User Not Found!" });
+    }
+
+    if (Number(id) !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden!" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
