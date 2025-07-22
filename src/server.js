@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "./config/db.js";
 import usersRoutes from "./routes/usersRoutes.js";
+import messagesRoutes from "./routes/messagesRoutes.js";
 import errorHandler from "./utils/errorHandler.js";
 
 const app = express();
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
   res.send("Root Route Placeholder!");
 });
 app.use("/api/users", usersRoutes);
+app.use("/api/messages", messagesRoutes);
 
 // Error Handling
 app.use(errorHandler);
