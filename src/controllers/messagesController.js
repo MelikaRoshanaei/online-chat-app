@@ -33,10 +33,6 @@ export const sendMessage = async (req, res, next) => {
 export const getConversations = async (req, res, next) => {
   let client;
   try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ error: "No Authenticated User!" });
-    }
-
     const user_id = req.user.id;
 
     client = await pool.connect();

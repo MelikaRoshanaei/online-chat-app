@@ -2,10 +2,6 @@ export const validateMessage = (req, res, next) => {
   const { receiver_id, content } = req.body;
   const sender_id = req.user.id;
 
-  if (!req.user || !req.user.id) {
-    return res.status(401).json({ error: "No Authenticated User!" });
-  }
-
   if (Number(receiver_id) === sender_id) {
     return res
       .status(400)
@@ -33,10 +29,6 @@ export const validateConversationByID = (req, res, next) => {
   const user_id = req.user.id;
   const otherUserId = req.params.otherUserId;
 
-  if (!req.user || !req.user.id) {
-    return res.status(401).json({ error: "No Authenticated User!" });
-  }
-
   if (!Number.isInteger(Number(otherUserId)) || Number(otherUserId) <= 0) {
     return res.status(400).json({ error: "Invalid Receiver ID!" });
   }
@@ -52,10 +44,6 @@ export const validateConversationByID = (req, res, next) => {
 
 export const validateDeleteMessage = (req, res, next) => {
   const id = req.params.id;
-
-  if (!req.user || !req.user.id) {
-    return res.status(401).json({ error: "No authenticated user!" });
-  }
 
   if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
     return res.status(400).json({ error: "Invalid Message ID!" });
