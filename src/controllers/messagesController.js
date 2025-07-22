@@ -124,7 +124,7 @@ export const deleteMessage = async (req, res, next) => {
     );
 
     if (messageCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Message not found!" });
+      return res.status(404).json({ error: "Message Not Found!" });
     }
 
     if (
@@ -137,6 +137,41 @@ export const deleteMessage = async (req, res, next) => {
     const result = await client.query(
       "DELETE FROM messages WHERE id = $1 RETURNING *",
       [id]
+    );
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
+
+export const updateMessage = async (req, res, next) => {
+  let client;
+  try {
+    const { id } = req.params;
+    const { queryFields, values } = req.validatedData;
+    client = await pool.connect();
+
+    const messageCheck = await client.query(
+      "SELECT sender_id FROM messages WHERE id = $1",
+      [id]
+    );
+
+    if (messageCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Message Not Found!" });
+    }
+
+    if (messageCheck.rows[0].sender_id !== req.user.id) {
+      return res.status(403).json({ error: "Forbidden!" });
+    }
+
+    const result = await client.query(
+      `UPDATE messages SET ${queryFields.join(", ")} WHERE id = $${
+        values.length + 1
+      } RETURNING *`,
+      [...values, id]
     );
 
     res.status(200).json(result.rows[0]);

@@ -51,3 +51,33 @@ export const validateDeleteMessage = (req, res, next) => {
 
   next();
 };
+
+export const validateMessageUpdate = (req, res, next) => {
+  let { content } = req.body;
+  let orderIndex = 1;
+  let queryFields = [];
+  let values = [];
+
+  if (content !== undefined) {
+    if (
+      typeof content !== "string" ||
+      content.trim().length === 0 ||
+      content.length > 1000
+    ) {
+      return res.status(400).json({ error: "Invalid Message Content!" });
+    }
+    content = content.trim();
+    queryFields.push(`content = $${orderIndex}`);
+    values.push(content);
+    orderIndex++;
+  }
+
+  if (queryFields.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "No Valid Field Provided For Update!" });
+  }
+
+  req.validatedData = { queryFields, values };
+  next();
+};
