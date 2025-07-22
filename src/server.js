@@ -1,8 +1,13 @@
 import express from "express";
 import pool from "./config/db.js";
+import usersRoutes from "./routes/usersRoutes.js";
+import errorHandler from "./utils/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT;
+
+// Middleware
+app.use(express.json());
 
 // Test DB Connection
 (async () => {
@@ -22,6 +27,7 @@ const PORT = process.env.PORT;
 app.get("/", (req, res) => {
   res.send("Root Route Placeholder!");
 });
+app.use("/api/users", usersRoutes);
 
 // Error Handling
 app.use(errorHandler);
