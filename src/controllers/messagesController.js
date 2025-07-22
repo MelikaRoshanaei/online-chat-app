@@ -80,3 +80,38 @@ export const getConversations = async (req, res, next) => {
     if (client) client.release();
   }
 };
+
+export const getOneConversationByID = async (req, res, next) => {
+  let client;
+  try {
+    const user_id = req.user.id;
+    const otherUserId = req.params.otherUserId;
+
+    client = await pool.connect();
+
+    const userExistingCheck = await client.query(
+      "SELECT id FROM users WHERE id = $1",
+      [otherUserId]
+    );
+
+    if (userExistingCheck.rows.length === 0) {
+      return res.status(404).json({ error: "User Not Found!" });
+    }
+
+    const result = await client.query(
+      `
+      SELECT id, sender_id, receiver_id, content, created_at
+      FROM messages
+      WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)
+      ORDER BY created_at ASC;
+      `,
+      [user_id, otherUserId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
