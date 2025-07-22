@@ -120,25 +120,28 @@ export const deleteMessage = async (req, res, next) => {
   let client;
   try {
     const id = req.params.id;
+    client = await pool.connect();
 
-    if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
-      return res.status(400).json({ error: "Invalid Message ID!" });
+    const messageCheck = await client.query(
+      "SELECT sender_id FROM messages WHERE id = $1",
+      [id]
+    );
+
+    if (messageCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Message not found!" });
     }
 
-    client = await pool.connect();
+    if (
+      messageCheck.rows[0].sender_id !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({ error: "Forbidden!" });
+    }
 
     const result = await client.query(
       "DELETE FROM messages WHERE id = $1 RETURNING *",
       [id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Message Not Found!" });
-    }
-
-    if (result.rows[0].sender_id !== req.user.id && req.user.role !== "admin") {
-      return res.status(403).json({ error: "Forbidden!" });
-    }
 
     res.status(200).json(result.rows[0]);
   } catch (err) {

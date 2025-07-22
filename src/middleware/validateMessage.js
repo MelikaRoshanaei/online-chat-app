@@ -49,3 +49,17 @@ export const validateConversationByID = (req, res, next) => {
 
   next();
 };
+
+export const validateDeleteMessage = (req, res, next) => {
+  const id = req.params.id;
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "No authenticated user!" });
+  }
+
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
+    return res.status(400).json({ error: "Invalid Message ID!" });
+  }
+
+  next();
+};
