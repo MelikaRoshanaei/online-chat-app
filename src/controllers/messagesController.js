@@ -181,3 +181,28 @@ export const updateMessage = async (req, res, next) => {
     if (client) client.release();
   }
 };
+
+export const searchMessage = async (req, res, next) => {
+  let client;
+  try {
+    const { queryFields, values } = req.validatedData;
+    client = await pool.connect();
+
+    const result = await client.query(
+      `SELECT * FROM messages ${
+        queryFields.length ? `WHERE ${queryFields.join(" AND ")}` : ""
+      } ORDER BY created_at DESC`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "No Existing Match Found!" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
