@@ -29,3 +29,54 @@ export const sendMessage = async (req, res, next) => {
     if (client) client.release();
   }
 };
+
+export const getConversations = async (req, res, next) => {
+  let client;
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "No Authenticated User!" });
+    }
+
+    const user_id = req.user.id;
+
+    client = await pool.connect();
+    const result = await client.query(
+      `
+      WITH conversations AS (
+        SELECT
+          CASE
+            WHEN sender_id = $1 THEN receiver_id
+            ELSE sender_id
+          END AS other_user_id,
+          m.content,
+          m.created_at,
+          ROW_NUMBER() OVER (
+            PARTITION BY CASE
+              WHEN sender_id = $1 THEN receiver_id
+              ELSE sender_id
+            END
+            ORDER BY m.created_at DESC
+          ) AS rn
+        FROM messages m
+        WHERE sender_id = $1 OR receiver_id = $1
+      )
+      SELECT
+        c.other_user_id AS user_id,
+        u.name AS user_name,
+        c.content AS last_message,
+        c.created_at AS last_message_timestamp
+      FROM conversations c
+      JOIN users u ON c.other_user_id = u.id
+      WHERE c.rn = 1
+      ORDER BY c.created_at DESC;
+      `,
+      [user_id]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    next(err);
+  } finally {
+    if (client) client.release();
+  }
+};
