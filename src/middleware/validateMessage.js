@@ -1,3 +1,5 @@
+import pool from "../config/db.js";
+
 export const validateMessage = async (req, res, next) => {
   const { receiver_id, content } = req.body;
   const sender_id = req.user.id;
