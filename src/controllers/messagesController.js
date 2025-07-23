@@ -8,15 +8,6 @@ export const sendMessage = async (req, res, next) => {
 
     client = await pool.connect();
 
-    const receiverExistingCheck = await client.query(
-      "SELECT id FROM users WHERE id = $1",
-      [receiver_id]
-    );
-
-    if (receiverExistingCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Receiver Not Found!" });
-    }
-
     const result = await client.query(
       "INSERT INTO messages (sender_id, receiver_id, content) VALUES ($1, $2, $3) RETURNING *",
       [sender_id, receiver_id, content]
@@ -85,15 +76,6 @@ export const getOneConversationByID = async (req, res, next) => {
 
     client = await pool.connect();
 
-    const userExistingCheck = await client.query(
-      "SELECT id FROM users WHERE id = $1",
-      [otherUserId]
-    );
-
-    if (userExistingCheck.rows.length === 0) {
-      return res.status(404).json({ error: "User Not Found!" });
-    }
-
     const result = await client.query(
       `
       SELECT id, sender_id, receiver_id, content, created_at
@@ -118,22 +100,6 @@ export const deleteMessage = async (req, res, next) => {
     const id = req.params.id;
     client = await pool.connect();
 
-    const messageCheck = await client.query(
-      "SELECT sender_id FROM messages WHERE id = $1",
-      [id]
-    );
-
-    if (messageCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Message Not Found!" });
-    }
-
-    if (
-      messageCheck.rows[0].sender_id !== req.user.id &&
-      req.user.role !== "admin"
-    ) {
-      return res.status(403).json({ error: "Forbidden!" });
-    }
-
     const result = await client.query(
       "DELETE FROM messages WHERE id = $1 RETURNING *",
       [id]
@@ -153,19 +119,6 @@ export const updateMessage = async (req, res, next) => {
     const { id } = req.params;
     const { queryFields, values } = req.validatedData;
     client = await pool.connect();
-
-    const messageCheck = await client.query(
-      "SELECT sender_id FROM messages WHERE id = $1",
-      [id]
-    );
-
-    if (messageCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Message Not Found!" });
-    }
-
-    if (messageCheck.rows[0].sender_id !== req.user.id) {
-      return res.status(403).json({ error: "Forbidden!" });
-    }
 
     const result = await client.query(
       `UPDATE messages SET ${queryFields.join(", ")} WHERE id = $${
