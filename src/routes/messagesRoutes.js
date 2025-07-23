@@ -21,6 +21,7 @@ const router = express.Router();
 
 router.post("/", authMiddleware, validateMessage, sendMessage);
 router.get("/", authMiddleware, getConversations);
+router.get("/search", authMiddleware, validateMessageSearch, searchMessage);
 router.get(
   "/:otherUserId",
   authMiddleware,
@@ -35,6 +36,5 @@ router.patch(
   validateMessageUpdate,
   updateMessage
 );
-router.get("/search", authMiddleware, validateMessageSearch, searchMessage);
 
 export default router;
