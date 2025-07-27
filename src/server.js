@@ -3,9 +3,17 @@ import pool from "./config/db.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import messagesRoutes from "./routes/messagesRoutes.js";
 import errorHandler from "./utils/errorHandler.js";
+import { socketHandler } from "./socket/socketHandler.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const app = express();
 const PORT = process.env.PORT;
+
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
+socketHandler(io);
 
 // Middleware
 app.use(express.json());
@@ -34,7 +42,7 @@ app.use("/api/messages", messagesRoutes);
 // Error Handling
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
 
