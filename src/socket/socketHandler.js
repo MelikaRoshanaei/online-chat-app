@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 
+const onlineUsers = new Map();
+
 export const socketHandler = (io) => {
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
@@ -18,10 +20,12 @@ export const socketHandler = (io) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("✅ A User Connected!", socket.id);
+    console.log(`✅ User ${socket.user.id} Connected:`, socket.id);
+    onlineUsers.set(socket.user.id, socket.id);
 
     socket.on("disconnect", () => {
       console.log("❌ A User Disconnected:", socket.id);
+      onlineUsers.delete(socket.user.id);
     });
   });
 };
