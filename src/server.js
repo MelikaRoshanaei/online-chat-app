@@ -32,6 +32,12 @@ app.use(express.json());
   }
 })();
 
+// Attach io to requests
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Routes
 app.get("/", (req, res) => {
   res.send("Root Route Placeholder!");
