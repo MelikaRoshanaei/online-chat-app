@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const onlineUsers = new Map();
+export const onlineUsers = new Map();
 
 export const socketHandler = (io) => {
   io.use((socket, next) => {
@@ -11,8 +11,8 @@ export const socketHandler = (io) => {
     }
 
     try {
-      const decode = jwt.verify(token, process.env.JWT_SECRET);
-      socket.user = decode;
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      socket.user = decodedToken;
       next();
     } catch (err) {
       return next(new Error("Authentication Error: Invalid Token!"));
