@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { onlineUsers } from "../socket/socketHandler.js";
 
 export const sendMessage = async (req, res, next) => {
   let client;
@@ -12,6 +13,13 @@ export const sendMessage = async (req, res, next) => {
       "INSERT INTO messages (sender_id, receiver_id, content) VALUES ($1, $2, $3) RETURNING *",
       [sender_id, receiver_id, content]
     );
+
+    // Real-time delivery via socket.io
+    const receiverSocketId = onlineUsers.get(receiver_id);
+
+    if (receiverSocketId) {
+      req.io.to(receiverSocketId).emit("newMessage", result.rows[0]);
+    }
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
