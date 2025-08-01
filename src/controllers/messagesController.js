@@ -149,6 +149,20 @@ export const updateMessage = async (req, res, next) => {
       [...values, id]
     );
 
+    // Real-time delivery via socket.io
+    const { sender_id, receiver_id } = result.rows[0];
+
+    const senderSocketId = onlineUsers.get(sender_id);
+    const receiverSocketId = onlineUsers.get(receiver_id);
+
+    if (senderSocketId) {
+      req.io.to(senderSocketId).emit("messageUpdated", result.rows[0]);
+    }
+
+    if (receiverSocketId) {
+      req.io.to(receiverSocketId).emit("messageUpdated", result.rows[0]);
+    }
+
     res.status(200).json(result.rows[0]);
   } catch (err) {
     next(err);
