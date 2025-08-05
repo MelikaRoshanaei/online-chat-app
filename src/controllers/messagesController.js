@@ -10,7 +10,14 @@ export const sendMessage = async (req, res, next) => {
     client = await pool.connect();
 
     const result = await client.query(
-      "INSERT INTO messages (sender_id, receiver_id, content) VALUES ($1, $2, $3) RETURNING *",
+      `WITH new_message AS (
+         INSERT INTO messages (sender_id, receiver_id, content)
+         VALUES ($1, $2, $3)
+         RETURNING id, sender_id, receiver_id, content, created_at
+       )
+       SELECT nm.*, u.name AS sender_name
+       FROM new_message nm
+       JOIN users u ON nm.sender_id = u.id`,
       [sender_id, receiver_id, content]
     );
 
