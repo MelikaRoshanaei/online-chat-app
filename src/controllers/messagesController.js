@@ -93,10 +93,17 @@ export const getOneConversationByID = async (req, res, next) => {
 
     const result = await client.query(
       `
-      SELECT id, sender_id, receiver_id, content, created_at
-      FROM messages
+      SELECT 
+        m.id,
+        m.sender_id,
+        m.receiver_id,
+        m.content,
+        m.created_at,
+        u.name AS sender_name
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
       WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)
-      ORDER BY created_at ASC;
+      ORDER BY m.created_at ASC;
       `,
       [user_id, otherUserId]
     );
