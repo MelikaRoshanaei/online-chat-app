@@ -1,4 +1,4 @@
-function ConversationItem({ conversation, isActive, isOnline }) {
+function ConversationItem({ conversation, isActive, isOnline, onClick }) {
   const { user_name, last_message, last_message_timestamp } = conversation;
 
   const formattedDate = new Date(last_message_timestamp).toLocaleTimeString(
@@ -16,7 +16,7 @@ function ConversationItem({ conversation, isActive, isOnline }) {
     : "bg-white hover:bg-gray-50";
 
   return (
-    <div className={`${baseStyle} ${activeStyle}`}>
+    <div className={`${baseStyle} ${activeStyle}`} onClick={onClick}>
       <div className="relative">
         <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
           <span className="text-sm font-medium text-gray-700">
