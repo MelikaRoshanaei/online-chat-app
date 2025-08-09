@@ -23,9 +23,13 @@ export const socketHandler = (io) => {
     console.log(`✅ User ${socket.user.id} Connected:`, socket.id);
     onlineUsers.set(socket.user.id, socket.id);
 
+    io.emit("updateOnlineUsers", Array.from(onlineUsers.keys()));
+
     socket.on("disconnect", () => {
       console.log("❌ A User Disconnected:", socket.id);
       onlineUsers.delete(socket.user.id);
+
+      io.emit("updateOnlineUsers", Array.from(onlineUsers.keys()));
     });
   });
 };
