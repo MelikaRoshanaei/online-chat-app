@@ -9,6 +9,12 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const handleReset = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // TODO : integrate axios
@@ -47,7 +53,7 @@ function SignUp() {
         />
       </div>
       <div className="flex gap-1">
-        <Button className="w-1/2" type="reset">
+        <Button className="w-1/2" type="button" onClick={handleReset}>
           Reset
         </Button>
         <Button className="w-1/2" type="submit">
