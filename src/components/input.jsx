@@ -5,7 +5,8 @@ function Input({
   placeholder = "",
   disabled = false,
   id,
-  ...props
+  value,
+  onChange,
 }) {
   const baseStyle =
     "px-4 py-2 border rounded-md font-medium transition-colors duration-200 focus:outline-none";
@@ -28,7 +29,8 @@ function Input({
       placeholder={placeholder}
       className={`${baseStyle} ${style} ${className}`}
       disabled={disabled}
-      {...props}
+      value={value}
+      onChange={onChange}
     />
   );
 }
