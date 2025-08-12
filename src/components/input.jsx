@@ -5,6 +5,7 @@ function Input({
   placeholder = "",
   disabled = false,
   id,
+  name,
   value,
   onChange,
 }) {
@@ -26,6 +27,7 @@ function Input({
     <input
       type={type}
       id={id}
+      name={name}
       placeholder={placeholder}
       className={`${baseStyle} ${style} ${className}`}
       disabled={disabled}

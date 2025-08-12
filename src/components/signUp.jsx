@@ -5,14 +5,19 @@ import Button from "./button";
 import { useState } from "react";
 
 function SignUp() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
   const handleReset = () => {
-    setName("");
-    setEmail("");
-    setPassword("");
+    setFormData({ name: "", email: "", password: "" });
   };
 
   const handleSubmit = (e) => {
@@ -28,8 +33,8 @@ function SignUp() {
           type="text"
           id="user-name"
           name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={formData.name}
+          onChange={handleChange}
         />
       </div>
       <div>
@@ -38,8 +43,8 @@ function SignUp() {
           type="email"
           id="email"
           name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
         />
       </div>
       <div>
@@ -48,8 +53,8 @@ function SignUp() {
           type="password"
           id="password"
           name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
         />
       </div>
       <div className="flex gap-1">
