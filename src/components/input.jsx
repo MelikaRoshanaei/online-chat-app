@@ -4,10 +4,7 @@ function Input({
   className = "",
   placeholder = "",
   disabled = false,
-  id,
-  name,
-  value,
-  onChange,
+  ...props
 }) {
   const baseStyle =
     "px-4 py-2 border rounded-md font-medium transition-colors duration-200 focus:outline-none";
@@ -26,13 +23,10 @@ function Input({
   return (
     <input
       type={type}
-      id={id}
-      name={name}
       placeholder={placeholder}
       className={`${baseStyle} ${style} ${className}`}
       disabled={disabled}
-      value={value}
-      onChange={onChange}
+      {...props}
     />
   );
 }
