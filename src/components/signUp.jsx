@@ -16,6 +16,24 @@ function SignUp() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+
+    const validationErrors = handleValidation(name);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: validationErrors[name],
+    }));
   };
 
   const handleReset = () => {
@@ -23,36 +41,40 @@ function SignUp() {
     setErrors({});
   };
 
-  const handleValidation = () => {
+  const handleValidation = (fieldName) => {
     let newErrors = {};
-
     const trimmed = {
       name: formData.name.trim(),
       email: formData.email.trim(),
       password: formData.password.trim(),
     };
 
-    if (trimmed.name === "" || !/^[a-zA-Z\s]{3,50}$/.test(trimmed.name)) {
-      newErrors.name =
-        "User Name Must Be Between 3-50 Alphabetical Characters.";
+    if (!fieldName || fieldName === "name") {
+      if (trimmed.name === "" || !/^[a-zA-Z\s]{3,50}$/.test(trimmed.name)) {
+        newErrors.name =
+          "User Name Must Be Between 3-50 Alphabetical Characters.";
+      }
     }
 
-    if (
-      trimmed.email === "" ||
-      trimmed.email.length > 254 ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed.email)
-    ) {
-      newErrors.email = "Email Must Be In Valid Format.";
+    if (!fieldName || fieldName === "email") {
+      if (
+        trimmed.email === "" ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed.email)
+      ) {
+        newErrors.email = "Email Must Be In Valid Format.";
+      }
     }
 
-    if (
-      trimmed.password === "" ||
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$/.test(
-        trimmed.password
-      )
-    ) {
-      newErrors.password =
-        "Password Must Be Between 8-64 Chars Including Uppercases, Lowercases, numbers & Special Characters.";
+    if (!fieldName || fieldName === "password") {
+      if (
+        trimmed.password === "" ||
+        !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$/.test(
+          trimmed.password
+        )
+      ) {
+        newErrors.password =
+          "Password must be 8-64 chars & include cases, numbers, & symbols.";
+      }
     }
 
     return newErrors;
@@ -81,6 +103,7 @@ function SignUp() {
           name="name"
           value={formData.name}
           onChange={handleChange}
+          onBlur={handleBlur}
           variant={errors.name ? "error" : "primary"}
         />
         {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
@@ -93,6 +116,7 @@ function SignUp() {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          onBlur={handleBlur}
           variant={errors.email ? "error" : "primary"}
         />
         {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
@@ -105,6 +129,7 @@ function SignUp() {
           name="password"
           value={formData.password}
           onChange={handleChange}
+          onBlur={handleBlur}
           variant={errors.password ? "error" : "primary"}
         />
         {errors.password && (
