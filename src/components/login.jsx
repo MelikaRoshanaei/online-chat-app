@@ -5,17 +5,65 @@ import Button from "./button";
 import { useState } from "react";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState({});
 
   const handleReset = () => {
-    setEmail("");
-    setPassword("");
+    setFormData({
+      email: "",
+      password: "",
+    });
+    setErrors({});
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleValidation = () => {
+    let newErrors = {};
+    const trimmed = {
+      email: formData.email.trim(),
+      password: formData.password.trim(),
+    };
+
+    if (trimmed.email === "") {
+      newErrors.email = "Email Is Required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed.email)) {
+      newErrors.email = "Email Must Be In Valid Format.";
+    }
+
+    if (trimmed.password === "") {
+      newErrors.password = "Password Is Required.";
+    }
+
+    return newErrors;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO : integrate axios
+
+    const validationErrors = handleValidation();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      // TODO : integrate axios
+      console.log("Form submitted successfully:", formData);
+      handleReset();
+    }
   };
 
   return (
@@ -26,9 +74,11 @@ function Login() {
           type="email"
           id="login-email"
           name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
+          variant={errors.email ? "error" : "primary"}
         />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
       </div>
       <div>
         <Label htmlFor="login-password">Password:</Label>
@@ -36,9 +86,13 @@ function Login() {
           type="password"
           id="login-password"
           name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
+          variant={errors.password ? "error" : "primary"}
         />
+        {errors.password && (
+          <p className="text-red-500 text-sm">{errors.password}</p>
+        )}
       </div>
       <div className="flex gap-1">
         <Button className="w-1/2" type="button" onClick={handleReset}>
