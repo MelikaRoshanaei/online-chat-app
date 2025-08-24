@@ -4,11 +4,15 @@ import jwt from "jsonwebtoken";
 
 const saltRounds = 10;
 
+const SAFE_USER_FIELDS = ["id", "name", "email", "role", "created_at"];
+
 export const getAllUsers = async (req, res, next) => {
   let client;
   try {
     client = await pool.connect();
-    const result = await client.query("SELECT * FROM users");
+    const result = await client.query(
+      `SELECT ${SAFE_USER_FIELDS.join(", ")} FROM users`
+    );
 
     res.status(200).json(result.rows);
   } catch (err) {
@@ -28,9 +32,10 @@ export const getUserById = async (req, res, next) => {
       return res.status(403).json({ error: "Forbidden!" });
     }
 
-    const result = await client.query("SELECT * FROM users WHERE id = $1", [
-      id,
-    ]);
+    const result = await client.query(
+      `SELECT ${SAFE_USER_FIELDS.join(", ")} FROM users WHERE id = $1`,
+      [id]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "User Not Found!" });
@@ -51,7 +56,7 @@ export const registerUser = async (req, res, next) => {
     client = await pool.connect();
 
     const existingEmail = await client.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT id FROM users WHERE email = $1",
       [email]
     );
 
@@ -64,7 +69,9 @@ export const registerUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const result = await client.query(
-      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
+      `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING ${SAFE_USER_FIELDS.join(
+        ", "
+      )}`,
       [name, email, hashedPassword, role]
     );
 
@@ -76,11 +83,7 @@ export const registerUser = async (req, res, next) => {
 
     res.status(201).json({
       token,
-      user: {
-        id: result.rows[0].id,
-        name: result.rows[0].name,
-        role: result.rows[0].role,
-      },
+      user: result.rows[0],
     });
   } catch (err) {
     next(err);
@@ -95,9 +98,13 @@ export const loginUser = async (req, res, next) => {
     const { email, password } = req.body;
     client = await pool.connect();
 
-    const result = await client.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    // Explicitly select password + safe fields; password is not sent in response
+    const result = await client.query(
+      `SELECT password, ${SAFE_USER_FIELDS.join(
+        ", "
+      )} FROM users WHERE email = $1`,
+      [email]
+    );
 
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "User Not Found!" });
@@ -115,7 +122,9 @@ export const loginUser = async (req, res, next) => {
         user: {
           id: result.rows[0].id,
           name: result.rows[0].name,
+          email: result.rows[0].email,
           role: result.rows[0].role,
+          created_at: result.rows[0].created_at,
         },
       });
     } else {
@@ -150,7 +159,7 @@ export const updateUser = async (req, res, next) => {
     const result = await client.query(
       `UPDATE users SET ${queryFields.join(", ")} WHERE id = $${
         values.length + 1
-      } RETURNING *`,
+      } RETURNING ${SAFE_USER_FIELDS.join(", ")}`,
       [...values, id]
     );
 
@@ -181,7 +190,9 @@ export const deleteUser = async (req, res, next) => {
     }
 
     const result = await client.query(
-      "DELETE FROM users WHERE id = $1 RETURNING *",
+      `DELETE FROM users WHERE id = $1 RETURNING ${SAFE_USER_FIELDS.join(
+        ", "
+      )}`,
       [id]
     );
 
