@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import pool from "./config/db.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import messagesRoutes from "./routes/messagesRoutes.js";
@@ -17,6 +18,7 @@ socketHandler(io);
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 
 // Test DB Connection
 (async () => {
