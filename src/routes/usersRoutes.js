@@ -8,6 +8,7 @@ import {
   deleteUser,
   refreshToken,
   logoutUser,
+  getMe,
 } from "../controllers/usersController.js";
 import {
   validateUser,
@@ -27,6 +28,7 @@ router.post("/logout", logoutUser);
 
 // Protected Routes
 router.get("/", authMiddleware, restrictTo("admin"), getAllUsers);
+router.get("/me", authMiddleware, getMe);
 router.get("/:id", authMiddleware, getUserById);
 router.patch("/:id", authMiddleware, validateUserUpdate, updateUser);
 router.delete("/:id", authMiddleware, restrictTo("admin"), deleteUser);
