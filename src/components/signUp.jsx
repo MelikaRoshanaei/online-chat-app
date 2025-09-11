@@ -3,8 +3,14 @@ import Label from "./label";
 import Input from "./input";
 import Button from "./button";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function SignUp() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -80,71 +86,97 @@ function SignUp() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validationErrors = handleValidation();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      // TODO : integrate axios
-      console.log("Form submitted successfully:", formData);
-      handleReset();
+      try {
+        await register(formData.name, formData.email, formData.password);
+        navigate("/chat");
+      } catch (err) {
+        alert(err.message);
+      }
     }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <div>
-        <Label htmlFor="user-name">Name:</Label>
-        <Input
-          type="text"
-          id="user-name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          variant={errors.name ? "error" : "primary"}
-        />
-        {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-      </div>
-      <div>
-        <Label htmlFor="email">Email:</Label>
-        <Input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          variant={errors.email ? "error" : "primary"}
-        />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-      </div>
-      <div>
-        <Label htmlFor="password">Password:</Label>
-        <Input
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          variant={errors.password ? "error" : "primary"}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password}</p>
-        )}
-      </div>
-      <div className="flex gap-1">
-        <Button className="w-1/2" type="button" onClick={handleReset}>
-          Reset
-        </Button>
-        <Button className="w-1/2" type="submit">
-          Sign Up
-        </Button>
-      </div>
-    </Form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+      <Form onSubmit={handleSubmit} className="w-full max-w-md">
+        <div>
+          <Label htmlFor="user-name">Name:</Label>
+          <Input
+            type="text"
+            id="user-name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            variant={errors.name ? "error" : "primary"}
+            className="w-full"
+          />
+          {errors.name ? (
+            <p className="text-red-500 text-sm mt-1 -mb-1">{errors.name}</p>
+          ) : (
+            <div className="h-4"></div>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="email">Email:</Label>
+          <Input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            variant={errors.email ? "error" : "primary"}
+            className="w-full"
+          />
+          {errors.email ? (
+            <p className="text-red-500 text-sm mt-1 -mb-1">{errors.email}</p>
+          ) : (
+            <div className="h-4"></div>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="password">Password:</Label>
+          <Input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            variant={errors.password ? "error" : "primary"}
+            className="w-full"
+          />
+          {errors.password ? (
+            <p className="text-red-500 text-sm mt-1 -mb-1">{errors.password}</p>
+          ) : (
+            <div className="h-4"></div>
+          )}
+        </div>
+        <div className="flex gap-1">
+          <Button className="w-1/2" type="button" onClick={handleReset}>
+            Reset
+          </Button>
+          <Button className="w-1/2" type="submit">
+            Sign Up
+          </Button>
+        </div>
+        <div className="text-center mt-4 text-sm">
+          <p>
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-500 hover:underline">
+              Login here
+            </Link>
+          </p>
+        </div>
+      </Form>
+    </div>
   );
 }
 
