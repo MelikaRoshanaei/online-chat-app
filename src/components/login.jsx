@@ -2,14 +2,18 @@ import Form from "./form";
 import Label from "./label";
 import Input from "./input";
 import Button from "./button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 function Login() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate("/chat");
+  }, [user]);
 
   const [formData, setFormData] = useState({
     email: "",
