@@ -13,7 +13,12 @@ const app = express();
 const PORT = process.env.PORT;
 
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_ORIGIN,
+    credentials: true,
+  },
+});
 
 socketHandler(io);
 
