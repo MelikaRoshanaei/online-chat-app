@@ -4,7 +4,7 @@ import api from "../api/client.js";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +13,13 @@ export const AuthProvider = ({ children }) => {
         const res = await api.get("/users/me");
         setUser(res.data);
       } catch (err) {
-        setUser(null);
+        try {
+          await api.get("/users/refresh");
+          const res2 = await api.get("/users/me");
+          setUser(res2.data);
+        } catch {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
