@@ -23,9 +23,14 @@ export const sendMessage = async (req, res, next) => {
 
     // Real-time delivery via socket.io
     const receiverSocketId = onlineUsers.get(receiver_id);
+    const senderSocketId = onlineUsers.get(sender_id);
 
     if (receiverSocketId) {
       req.io.to(receiverSocketId).emit("newMessage", result.rows[0]);
+    }
+
+    if (senderSocketId) {
+      req.io.to(senderSocketId).emit("newMessage", result.rows[0]);
     }
 
     res.status(201).json(result.rows[0]);
