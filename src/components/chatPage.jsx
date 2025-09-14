@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client.js";
 import ConversationsList from "./conversationsList";
+import MessagePanel from "./messagePanel.jsx";
 
 function ChatPage({ socket }) {
   const { user } = useAuth();
@@ -28,22 +29,32 @@ function ChatPage({ socket }) {
     if (!socket || !user) return;
 
     socket.on("updateOnlineUsers", (userIds) => {
-      console.log("Received Online Users:", userIds);
       setOnlineUserIds(new Set(userIds));
     });
 
-    return () => {
-      socket.off("updateOnlineUsers");
-    };
+    return () => socket.off("updateOnlineUsers");
   }, [socket, user]);
 
   return (
-    <ConversationsList
-      conversations={conversations}
-      onlineUserIds={onlineUserIds}
-      activeConversationId={activeConversationId}
-      setActiveConversationId={setActiveConversationId}
-    />
+    <div className="flex h-screen bg-gray-100">
+      <div className="w-1/3 border-r bg-white overflow-y-auto">
+        <ConversationsList
+          conversations={conversations}
+          onlineUserIds={onlineUserIds}
+          activeConversationId={activeConversationId}
+          setActiveConversationId={setActiveConversationId}
+        />
+      </div>
+      <div className="flex-1 flex flex-col">
+        {activeConversationId ? (
+          <MessagePanel socket={socket} otherUserId={activeConversationId} />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Select a conversation to start chatting
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
