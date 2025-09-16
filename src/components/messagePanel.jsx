@@ -6,7 +6,7 @@ import Form from "./form.jsx";
 import Input from "./input.jsx";
 import Button from "./button.jsx";
 
-function MessagePanel({ socket, otherUserId }) {
+function MessagePanel({ socket, otherUserId, onNewMessage }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -35,6 +35,7 @@ function MessagePanel({ socket, otherUserId }) {
         message.receiver_id === otherUserId
       ) {
         setMessages((prev) => [...prev, message]);
+        onNewMessage?.(message);
       }
     };
 
@@ -47,15 +48,18 @@ function MessagePanel({ socket, otherUserId }) {
     if (!newMessage.trim()) return;
 
     try {
-      await api.post("/messages", {
+      const res = await api.post("/messages", {
         receiver_id: otherUserId,
         content: newMessage.trim(),
       });
 
-      socket?.emit("sendMessage", {
-        receiver_id: otherUserId,
-        content: newMessage.trim(),
-      });
+      const sentMessage = res.data;
+
+      setMessages((prev) => [...prev, sentMessage]);
+
+      onNewMessage?.(sentMessage);
+
+      socket?.emit("sendMessage", sentMessage);
     } catch (err) {
       console.error("Failed to send message:", err.message);
     } finally {

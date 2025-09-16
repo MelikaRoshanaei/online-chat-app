@@ -25,6 +25,21 @@ function ChatPage({ socket }) {
     fetchConversations();
   }, [user]);
 
+  const handleNewMessage = (message) => {
+    setConversations((prevConvs) =>
+      prevConvs.map((conv) =>
+        conv.user_id === message.sender_id ||
+        conv.user_id === message.receiver_id
+          ? {
+              ...conv,
+              last_message: message.content,
+              last_message_timestamp: message.created_at,
+            }
+          : conv
+      )
+    );
+  };
+
   useEffect(() => {
     if (!socket || !user) return;
 
@@ -47,7 +62,11 @@ function ChatPage({ socket }) {
       </div>
       <div className="flex-1 flex flex-col">
         {activeConversationId ? (
-          <MessagePanel socket={socket} otherUserId={activeConversationId} />
+          <MessagePanel
+            socket={socket}
+            otherUserId={activeConversationId}
+            onNewMessage={handleNewMessage}
+          />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
             Select a conversation to start chatting
