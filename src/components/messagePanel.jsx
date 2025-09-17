@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client.js";
 import MessageBubble from "./messageBubble.jsx";
@@ -10,6 +10,16 @@ function MessagePanel({ socket, otherUserId, onNewMessage }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (!otherUserId) return;
@@ -83,6 +93,7 @@ function MessagePanel({ socket, otherUserId, onNewMessage }) {
             No messages yet. Start the conversation!
           </p>
         )}
+        <div ref={messagesEndRef}></div>
       </div>
       <Form
         onSubmit={handleSendMessage}
