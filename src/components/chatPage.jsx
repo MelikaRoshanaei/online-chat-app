@@ -51,24 +51,39 @@ function ChatPage({ socket }) {
   }, [socket, user]);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div className="w-1/3 border-r bg-white overflow-y-auto">
-        <ConversationsList
-          conversations={conversations}
-          onlineUserIds={onlineUserIds}
-          activeConversationId={activeConversationId}
-          setActiveConversationId={setActiveConversationId}
-        />
+    <div className="flex h-screen bg-gray-50 text-gray-800">
+      {/* Sidebar / Conversations List */}
+      <div className="flex flex-col w-full max-w-xs bg-white border-r border-gray-200">
+        <div className="p-4 border-b border-gray-200">
+          <h1 className="text-xl font-bold text-blue-600">ChatApp</h1>
+          {/* Search bar Placeholder */}
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <ConversationsList
+            conversations={conversations}
+            onlineUserIds={onlineUserIds}
+            activeConversationId={activeConversationId}
+            setActiveConversationId={setActiveConversationId}
+          />
+        </div>
+
+        <div className="p-4 border-t border-gray-200">
+          {/* Logout Button / User Profile Placeholder */}
+        </div>
       </div>
+
+      {/* Message Panel */}
       <div className="flex-1 flex flex-col">
         {activeConversationId ? (
           <MessagePanel
             socket={socket}
             otherUserId={activeConversationId}
             onNewMessage={handleNewMessage}
+            isOtherUserOnline={onlineUserIds.has(activeConversationId)}
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50">
             Select a conversation to start chatting
           </div>
         )}
