@@ -55,22 +55,22 @@ bcrypt, JWT, CORS, Input validation, HttpOnly cookies
 
 ## 🚀 Installation & Setup
 
-###Clone the repo###
+### Clone the repo
 
 git clone https://github.com/MelikaRoshanaei/online-chat-app.git
 
-###Install dependencies###
+### Install dependencies
 
 cd online-chat-app
 npm install
 
-###Set up .env file (see .env.example)###
+### Set up .env file (see .env.example)
 
-###Run backend###
+### Run backend
 
 node src/server.js
 
-###Run frontend (in another terminal)###
+### Run frontend (in another terminal)
 
 npm run dev
 
