@@ -61,7 +61,6 @@ git clone https://github.com/MelikaRoshanaei/online-chat-app.git
 
 ### Install dependencies
 
-cd online-chat-app
 npm install
 
 ### Set up .env file (see .env.example)
